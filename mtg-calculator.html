@@ -1,0 +1,1617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Mortgage Calculator | Dark Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --primary-dark: #2563eb;
+            --primary-glow: rgba(59, 130, 246, 0.15);
+            --secondary: #f59e0b;
+            --accent: #10b981;
+            --danger: #ef4444;
+            
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #334155;
+            --bg-input: #374151;
+            --border: #475569;
+            --border-light: #64748b;
+            
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            
+            --shadow: rgba(0, 0, 0, 0.25);
+            --shadow-hover: rgba(0, 0, 0, 0.35);
+            --shadow-glow: rgba(59, 130, 246, 0.2);
+            
+            --gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --gradient-dark: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            --gradient-card: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+            --gradient-glow: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.05) 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg-dark);
+            font-family: 'Poppins', system-ui, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            padding: 16px;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 20%),
+                radial-gradient(circle at 85% 30%, rgba(245, 158, 11, 0.05) 0%, transparent 20%),
+                radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 20%);
+        }
+        
+        body {
+            padding: 0 !important;
+        }
+
+        .mc-root {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .mc-panel {
+            background: var(--gradient-card);
+            border-radius: 24px;
+            box-shadow: 
+                0 25px 50px -12px var(--shadow),
+                0 0 0 1px var(--border),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .mc-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .mc-panel:hover {
+            box-shadow: 
+                0 32px 64px -12px var(--shadow-hover),
+                0 0 0 1px var(--primary),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .mc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 32px 30px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 20px;
+            background: var(--gradient-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mc-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient);
+            box-shadow: 0 0 20px var(--shadow-glow);
+        }
+
+        .mc-title {
+            margin: 0;
+            font-size: clamp(24px, 5vw, 32px);
+            color: var(--text-primary);
+            font-weight: 700;
+            position: relative;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mc-sub {
+            margin: 8px 0 0;
+            color: var(--text-muted);
+            font-size: clamp(13px, 3vw, 16px);
+            font-weight: 400;
+        }
+
+        .mc-result-box {
+            background: var(--gradient);
+            padding: 20px 24px;
+            border-radius: 20px;
+            text-align: center;
+            width: 100%;
+            max-width: 100%;
+            box-shadow: 
+                0 12px 30px rgba(29, 78, 216, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mc-result-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .mc-result-box:hover::before {
+            left: 100%;
+        }
+
+        .mc-result-label {
+            font-size: clamp(13px, 3vw, 15px);
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .mc-monthly {
+            font-weight: 700;
+            font-size: clamp(24px, 6vw, 36px);
+            color: white;
+            margin-top: 8px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            background: linear-gradient(135deg, #ffffff 0%, #e2e8f0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mc-breakdown-brief {
+            font-size: clamp(12px, 3vw, 14px);
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 8px;
+            font-weight: 400;
+        }
+
+        .mc-body {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 30px;
+        }
+
+        .mc-left, .mc-right {
+            width: 100%;
+            min-width: 0;
+        }
+
+        .mc-field {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .mc-field label {
+            display: block;
+            font-weight: normal;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mc-field label::before {
+            content: '';
+            width: 4px;
+            height: 14px;
+            background: var(--primary);
+            border-radius: 2px;
+            display: inline-block;
+        }
+
+        .mc-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .mc-row.two {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .mc-row.two > div {
+            width: 100%;
+            margin-left: 0 !important;
+        }
+
+        .mc-input {
+            width: 100%;
+            padding: 16px 18px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            font-size: clamp(15px, 4vw, 17px);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            font-weight: 500;
+            color: var(--text-primary);
+            font-family: Arial, sans-serif;
+        }
+
+        .mc-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .mc-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 0 0 3px var(--primary-glow),
+                0 5px 15px rgba(59, 130, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .mc-input:hover {
+            border-color: var(--primary-light);
+            background: var(--bg-card-hover);
+        }
+
+        .mc-select {
+            width: 100%;
+            padding: 15px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+            font-size: clamp(15px, 4vw, 17px);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            color: var(--text-primary);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            background-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+
+        .mc-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 0 0 3px var(--primary-glow),
+                0 5px 15px rgba(59, 130, 246, 0.2);
+        }
+
+        .mc-select:hover {
+            border-color: var(--primary-light);
+            background-color: var(--bg-card-hover);
+        }
+
+        .mc-currency {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+        }
+
+        .mc-range {
+            width: 100%;
+            height: 12px;
+            margin-top: 16px;
+            border-radius: 10px;
+            appearance: none;
+            background: var(--bg-input);
+            outline: none;
+            border: 1px solid var(--border);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .mc-range.small {
+            height: 10px;
+        }
+
+        .mc-range::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 
+                0 4px 12px rgba(59, 130, 246, 0.4),
+                0 0 0 2px var(--primary);
+            border: 3px solid var(--bg-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mc-range::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+            box-shadow: 
+                0 6px 20px rgba(59, 130, 246, 0.6),
+                0 0 0 2px var(--primary-light);
+        }
+
+        .mc-range::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            box-shadow: 
+                0 4px 12px rgba(59, 130, 246, 0.4),
+                0 0 0 2px var(--primary);
+            border: 3px solid var(--bg-dark);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mc-range::-moz-range-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        .mc-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+
+        .mc-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            align-items: flex-start;
+            margin-top: 16px;
+        }
+
+        .mc-toggle {
+            font-size: 14px;
+            color: var(--text-primary);
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 12px 16px;
+            border-radius: 12px;
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            font-family: Arial, sans-serif;
+            font-weight: normal;
+        }
+
+        .mc-toggle:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .mc-toggle input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+        }
+
+        .mc-btn-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 24px;
+        }
+
+        .mc-btn {
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: clamp(15px, 3.5vw, 17px);
+            width: 100%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        .mc-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+
+        .mc-btn:hover::before {
+            left: 100%;
+        }
+
+        .mc-btn.primary {
+            background: var(--gradient);
+            color: #fff;
+            box-shadow: 
+                0 8px 25px rgba(29, 78, 216, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .mc-btn.primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 30px rgba(29, 78, 216, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        }
+
+        .mc-btn.ghost {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .mc-btn.ghost:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px var(--shadow-hover);
+            border-color: var(--primary);
+            color: var(--primary);
+            background: var(--bg-card-hover);
+        }
+
+        .mc-charts {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .mc-card {
+            background: var(--gradient-card);
+            border-radius: 20px;
+            padding: 24px;
+            border: 1px solid var(--border);
+            box-shadow: 
+                0 8px 25px var(--shadow),
+                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mc-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.3;
+        }
+
+        .mc-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 15px 35px var(--shadow-hover),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-light);
+        }
+
+        .mc-card-head {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .mc-card-head strong {
+            font-size: clamp(18px, 4vw, 20px);
+            color: var(--text-primary);
+            position: relative;
+            padding-left: 16px;
+            font-weight: 700;
+            font-family: Arial, sans-serif;
+        }
+
+        .mc-card-head strong::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 24px;
+            background: var(--gradient);
+            border-radius: 3px;
+            box-shadow: 0 0 10px var(--shadow-glow);
+        }
+
+        /* Fixed Toggle Switch Styles */
+        .mc-view-toggle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .mc-view-toggle {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .mc-view-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
+            font-family: Arial, sans-serif;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .mc-view-label.active {
+            color: var(--text-primary);
+        }
+
+        .mc-toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .mc-toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .mc-toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .mc-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 3px;
+            background-color: var(--primary);
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(29, 78, 216, 0.3);
+        }
+
+        input:checked + .mc-toggle-slider {
+            background-color: var(--primary-glow);
+        }
+
+        input:checked + .mc-toggle-slider:before {
+            transform: translateX(28px);
+        }
+
+        .mc-tabs {
+            display: flex;
+            gap: 8px;
+            background: var(--bg-input);
+            padding: 8px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            width: 100%;
+            backdrop-filter: blur(10px);
+        }
+
+        .mc-tab {
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: clamp(14px, 3.5vw, 16px);
+            transition: all 0.3s ease;
+            flex: 1;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .mc-tab.active {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+        }
+
+        .mc-tab:not(.active):hover {
+            color: var(--primary-light);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .mc-donut-wrap, .mc-schedule-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: clamp(300px, 70vw, 450px);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: var(--bg-input);
+        }
+
+        .mc-card-body {
+            padding: 16px 0;
+        }
+
+        .mc-card-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-top: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            margin-top: 16px;
+            font-family: Arial, sans-serif;
+        }
+
+        .mc-card-footer > div {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+        .mc-card-footer > div:hover {
+            background: var(--primary-glow);
+            padding-left: 12px;
+            border-radius: 8px;
+            color: var(--text-primary);
+        }
+
+        .mc-card-footer > div:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            color: var(--primary);
+            background: var(--primary-glow);
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 8px;
+            border: 1px solid var(--primary);
+        }
+
+        .mc-amort-table-wrap {
+            max-height: 320px;
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.1),
+                0 4px 12px var(--shadow);
+            background: var(--bg-input);
+        }
+
+        .mc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            font-family: Arial, sans-serif;
+        }
+
+        .mc-table th, .mc-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            text-align: right;
+        }
+
+        .mc-table th {
+            text-align: center;
+            font-weight: 700;
+            background: var(--gradient-dark);
+            position: sticky;
+            top: 0;
+            color: var(--primary-light);
+            border-bottom: 2px solid var(--primary);
+            font-size: 12px;
+        }
+
+        .mc-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .mc-table tbody tr:hover {
+            background: var(--primary-glow);
+            transform: scale(1.01);
+        }
+
+        .mc-foot {
+            padding: 20px 30px;
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-muted);
+            text-align: center;
+            background: var(--gradient-dark);
+            font-style: italic;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Enhanced animations */
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.6); }
+        }
+
+        .mc-result-box.glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        /* Tablet and larger screens */
+        @media (min-width: 768px) {
+            body {
+                padding: 24px;
+            }
+            
+            .mc-header {
+                padding: 40px 40px;
+                flex-direction: row;
+                align-items: center;
+            }
+            
+            .mc-result-box {
+                text-align: right;
+                width: auto;
+                min-width: 280px;
+                max-width: 380px;
+            }
+            
+            .mc-body {
+                flex-direction: row;
+                padding: 40px;
+                gap: 40px;
+            }
+            
+            .mc-left {
+                flex: 1 1 500px;
+            }
+            
+            .mc-right {
+                flex: 1 1 600px;
+            }
+            
+            .mc-row.two {
+                flex-direction: row;
+            }
+            
+            .mc-row.two > div:last-child {
+                width: 120px;
+                margin-left: 12px !important;
+            }
+            
+            .mc-grid-2 {
+                grid-template-columns: 1fr 1fr;
+                gap: 24px;
+            }
+            
+            .mc-options {
+                flex-direction: row;
+                gap: 24px;
+            }
+            
+            .mc-toggle {
+                width: auto;
+            }
+            
+            .mc-btn-container {
+                flex-direction: row;
+                gap: 16px;
+            }
+            
+            .mc-btn {
+                width: auto;
+                flex: 1;
+                min-width: 140px;
+            }
+            
+            .mc-card-head {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .mc-tabs {
+                width: auto;
+            }
+            
+            .mc-tab {
+                flex: none;
+                min-width: 120px;
+            }
+        }
+
+        /* Desktop screens */
+        @media (min-width: 1024px) {
+            .mc-header {
+                gap: 30px;
+            }
+            
+            .mc-body {
+                gap: 50px;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-input);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-light);
+        }
+    </style>
+</head>
+<body>
+    <div id="mc-root" class="mc-root">
+        <div class="mc-panel">
+            <header class="mc-header">
+                <div>
+                    <h1 class="mc-title">Mortgage Calculator</h1>
+                    <p class="mc-sub">Interactive breakdown • Donut + schedule • Export amortization</p>
+                </div>
+                <div class="mc-result-box glow" aria-live="polite">
+                    <div class="mc-result-label">Estimated Monthly Payment</div>
+                    <div id="mc-monthly" class="mc-monthly">$0</div>
+                    <div id="mc-breakdown-brief" class="mc-breakdown-brief">Principal & Interest • Taxes • Insurance • PMI • HOA</div>
+                </div>
+            </header>
+
+            <main class="mc-body">
+                <section class="mc-left">
+                    <!-- Home price -->
+                    <div class="mc-field">
+                        <label>Home Price</label>
+                        <div class="mc-row">
+                            <div style="position:relative;flex:1">
+                                <input id="mc-price" type="number" min="0" max="5000000" step="1000" value="350000" class="mc-input" placeholder="Enter home price">
+                                <div class="mc-currency">$</div>
+                            </div>
+                        </div>
+                        <input id="mc-price-range" class="mc-range" type="range" min="0" max="5000000" step="1000" value="350000">
+                    </div>
+
+                    <!-- Down payment -->
+                    <div class="mc-field">
+                        <label>Down Payment</label>
+                        <div class="mc-row two">
+                            <div style="position:relative">
+                                <input id="mc-down" type="number" min="0" step="100" value="70000" class="mc-input" placeholder="Down amount">
+                                <div class="mc-currency">$</div>
+                            </div>
+                            <div style="position:relative">
+                                <input id="mc-down-percent" type="number" min="0" max="100" step="0.1" value="20" class="mc-input" placeholder="Percentage">
+                                <div style="font-size:12px;color:var(--text-muted);text-align:center;margin-top:6px">%</div>
+                            </div>
+                        </div>
+                        <input id="mc-down-range" class="mc-range" type="range" min="0" max="100" step="0.1" value="20">
+                    </div>
+
+                    <!-- Term & Rate -->
+                    <div class="mc-field mc-grid-2">
+                        <div>
+                            <label>Loan Term (Years)</label>
+                            <select id="mc-term" class="mc-select">
+                                <option value="10">10 Years</option>
+                                <option value="15">15 Years</option>
+                                <option value="20">20 Years</option>
+                                <option value="25">25 Years</option>
+                                <option value="30" selected>30 Years</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Interest Rate (Annual %)</label>
+                            <input id="mc-rate" type="number" step="0.01" min="0" value="4.50" class="mc-input" placeholder="Interest rate">
+                        </div>
+                    </div>
+
+                    <!-- Tax & Insurance -->
+                    <div class="mc-field mc-grid-2">
+                        <div>
+                            <label>Property Tax (Annual $)</label>
+                            <div style="position:relative">
+                                <input id="mc-tax-amount" type="number" step="1" min="0" max="100000" value="4200" class="mc-input" placeholder="Annual tax">
+                                <div class="mc-currency">$</div>
+                            </div>
+                            <input id="mc-tax-range" class="mc-range small" type="range" min="0" max="100000" step="100" value="4200">
+                        </div>
+                        <div>
+                            <label>Home Insurance (Annual $)</label>
+                            <input id="mc-insurance" type="number" step="1" min="0" value="1200" class="mc-input" placeholder="Annual insurance">
+                            <input id="mc-ins-range" class="mc-range small" type="range" min="0" max="10000" step="10" value="1200">
+                        </div>
+                    </div>
+
+                    <!-- PMI & HOA -->
+                    <div class="mc-field mc-grid-2">
+                        <div>
+                            <label>PMI (%) (Annual of Loan)</label>
+                            <input id="mc-pmi-percent" type="number" step="0.01" min="0" value="0.50" class="mc-input" placeholder="PMI percentage">
+                            <input id="mc-pmi-range" class="mc-range small" type="range" min="0" max="5" step="0.01" value="0.50">
+                        </div>
+                        <div>
+                            <label>HOA / Other (Monthly $)</label>
+                            <input id="mc-hoa" type="number" step="1" min="0" value="0" class="mc-input" placeholder="Monthly HOA">
+                            <input id="mc-hoa-range" class="mc-range small" type="range" min="0" max="2000" step="5" value="0">
+                        </div>
+                    </div>
+
+                    <div class="mc-options">
+                        <label class="mc-toggle"><input id="mc-include-pmi" type="checkbox" checked> Include PMI</label>
+                        <label class="mc-toggle"><input id="mc-include-ti" type="checkbox" checked> Include Taxes & Insurance</label>
+                    </div>
+
+                    <div class="mc-btn-container">
+                        <button id="mc-calc" class="mc-btn primary">Calculate</button>
+                        <button id="mc-reset" class="mc-btn ghost">Reset All</button>
+                        <button id="mc-export" class="mc-btn ghost" title="Download amortization CSV">Export CSV</button>
+                    </div>
+                </section>
+
+                <section class="mc-right">
+                    <div class="mc-charts">
+                        <div class="mc-card">
+                            <div class="mc-card-head">
+                                <strong>Payment Breakdown</strong>
+                                <div class="mc-tabs">
+                                    <button data-tab="break" class="mc-tab active">Donut Chart</button>
+                                    <button data-tab="schedule" class="mc-tab">Schedule</button>
+                                </div>
+                            </div>
+
+                            <div class="mc-card-body">
+                                <div id="mc-donut-wrap" class="mc-donut-wrap">
+                                    <canvas id="mc-donut" aria-label="Payment breakdown chart" role="img"></canvas>
+                                </div>
+
+                                <div id="mc-schedule-wrap" class="mc-schedule-wrap" style="display:none">
+                                    <canvas id="mc-schedule" aria-label="Amortization schedule chart" role="img"></canvas>
+                                </div>
+
+                                <!-- Fixed toggle switch under the chart -->
+                                <div class="mc-view-toggle-container">
+                                    <div class="mc-view-toggle">
+                                        <span class="mc-view-label active">Monthly</span>
+                                        <label class="mc-toggle-switch">
+                                            <input type="checkbox" id="mc-view-toggle">
+                                            <span class="mc-toggle-slider"></span>
+                                        </label>
+                                        <span class="mc-view-label">Annual</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mc-card-footer" id="mc-breakdown-list"></div>
+                        </div>
+
+                        <div class="mc-card mc-amort-card" id="mc-amort-card" style="display:none">
+                            <div class="mc-card-head"><strong>Amortization (First 10 Rows)</strong></div>
+                            <div class="mc-card-body mc-amort-table-wrap">
+                                <table class="mc-table" id="mc-amort-table">
+                                    <thead><tr><th>#</th><th>Payment</th><th>Principal</th><th>Interest</th><th>Balance</th></tr></thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer class="mc-foot">Professional Mortgage Calculator • Estimated values for informational purposes only</footer>
+        </div>
+    </div>
+
+    <script>
+        (function(){
+            // element helpers
+            const $ = id => document.getElementById(id);
+            const curr = '$';
+
+            // DOM
+            const price = $('mc-price'), priceRange = $('mc-price-range');
+            const down = $('mc-down'), downPercent = $('mc-down-percent'), downRange = $('mc-down-range');
+            const term = $('mc-term'), rate = $('mc-rate');
+            const taxAmount = $('mc-tax-amount'), taxRange = $('mc-tax-range');
+            const insurance = $('mc-insurance'), insuranceRange = $('mc-ins-range');
+            const pmiPercent = $('mc-pmi-percent'), pmiRange = $('mc-pmi-range');
+            const hoa = $('mc-hoa'), hoaRange = $('mc-hoa-range');
+            const includePMI = $('mc-include-pmi'), includeTI = $('mc-include-ti');
+            const calcBtn = $('mc-calc'), resetBtn = $('mc-reset'), exportBtn = $('mc-export');
+            const monthlyText = $('mc-monthly'), breakdownList = $('mc-breakdown-list');
+            const amortCard = $('mc-amort-card'), amortTableBody = $('mc-amort-table').querySelector('tbody');
+            const donutCtx = $('mc-donut').getContext('2d'), scheduleCtx = $('mc-schedule').getContext('2d');
+            const viewToggle = $('mc-view-toggle');
+
+            let donutChart = null, scheduleChart = null;
+            let currentView = 'monthly'; // 'monthly' or 'annual'
+
+            // formatting
+            function fmt(v, d=0){ if (!isFinite(v)) v = 0; return curr + Number(v).toLocaleString(undefined, {minimumFractionDigits:d, maximumFractionDigits:d}); }
+
+            // update range visual fill
+            function updateRangeFill(range){
+                const min = Number(range.min || 0), max = Number(range.max || 100), val = Number(range.value || 0);
+                const pct = max > min ? ((val - min) * 100 / (max - min)) : 0;
+                range.style.background = `linear-gradient(90deg, var(--primary) ${pct}%, var(--bg-input) ${pct}%)`;
+            }
+
+            // Generic link for input <-> range
+            function linkInputRange(input, range){
+                // initial
+                if (input && range){
+                    range.value = input.value;
+                    updateRangeFill(range);
+                    input.addEventListener('input', ()=>{
+                        if (input.value === '') input.value = 0;
+                        if (Number(input.value) < Number(input.min || -Infinity)) input.value = input.min;
+                        if (Number(input.value) > Number(input.max || Infinity)) input.value = input.max;
+                        range.value = input.value;
+                        updateRangeFill(range);
+                    });
+                    range.addEventListener('input', ()=>{
+                        input.value = range.value;
+                        updateRangeFill(range);
+                    });
+                }
+            }
+
+            // Set up ranges
+            // Home price 0 - 5,000,000
+            price.min = 0; price.max = 5000000; price.step = 1000;
+            priceRange.min = 0; priceRange.max = 5000000; priceRange.step = 1000;
+            linkInputRange(price, priceRange);
+            
+            // Property tax in dollars (0 - 100,000)
+            taxAmount.min = 0; taxAmount.max = 100000; taxAmount.step = 1;
+            taxRange.min = 0; taxRange.max = 100000; taxRange.step = 100;
+            linkInputRange(taxAmount, taxRange);
+            
+            linkInputRange(insurance, insuranceRange);
+            linkInputRange(pmiPercent, pmiRange);
+            linkInputRange(hoa, hoaRange);
+
+            // Down payment: percent slider controls percent; amount updates percent; price change updates down amount from percent
+            down.min = 0; down.max = 5000000; down.step = 100;
+            downPercent.min = 0; downPercent.max = 100; downPercent.step = 0.1;
+            // Initialize
+            function setDownFromPercent(pct){
+                const p = Number(price.value || 0);
+                const percent = Math.max(0, Math.min(100, Number(pct || 0)));
+                downPercent.value = Number(percent.toFixed(2));
+                down.value = Math.round(p * percent / 100);
+                downRange.value = percent;
+                updateRangeFill(downRange);
+            }
+            function setPercentFromDownAmount(){
+                const p = Number(price.value || 0);
+                const d = Number(down.value || 0);
+                const pct = p > 0 ? (d / p * 100) : 0;
+                downPercent.value = Number(pct.toFixed(2));
+                downRange.value = Number(pct.toFixed(2));
+                updateRangeFill(downRange);
+            }
+            // Initial sync
+            setDownFromPercent(downPercent.value);
+
+            // Events for down
+            down.addEventListener('input', ()=>{
+                if (down.value === '') down.value = 0;
+                if (Number(down.value) < 0) down.value = 0;
+                setPercentFromDownAmount();
+                computePreview(); 
+            });
+            downPercent.addEventListener('input', ()=>{
+                setDownFromPercent(downPercent.value);
+                computePreview();
+            });
+            downRange.addEventListener('input', ()=>{
+                downPercent.value = downRange.value;
+                setDownFromPercent(downPercent.value);
+                computePreview();
+            });
+            // When price changes, recalc down based on percent (so percent remains stable)
+            price.addEventListener('input', ()=>{
+                // clamp
+                if (price.value === '') price.value = 0;
+                if (Number(price.value) < 0) price.value = 0;
+                setDownFromPercent(downPercent.value);
+                priceRange.value = price.value;
+                updateRangeFill(priceRange);
+                computePreview();
+            });
+            priceRange.addEventListener('input', ()=>{
+                price.value = priceRange.value;
+                setDownFromPercent(downPercent.value);
+                updateRangeFill(priceRange);
+                computePreview();
+            });
+
+            // link other numeric inputs to their ranges (to keep fill updated and two-way)
+            linkInputRange(taxAmount, taxRange);
+            linkInputRange(insurance, insuranceRange);
+            linkInputRange(pmiPercent, pmiRange);
+            linkInputRange(hoa, hoaRange);
+
+            // update range fill for all initially
+            [priceRange, downRange, taxRange, insuranceRange, pmiRange, hoaRange].forEach(updateRangeFill);
+
+            // Core math: produce monthly PI, tax, ins, pmi, hoa and full amortization schedule
+            function computeAll(){
+                const P_price = Number(price.value || 0);
+                const downAmt = Math.max(0, Number(down.value || 0));
+                const loan = Math.max(0, P_price - downAmt);
+                const years = Math.max(1, Number(term.value || 30));
+                const monthlyRate = (Number(rate.value || 0) / 100) / 12;
+                const n = Math.max(1, Math.round(years * 12));
+
+                // Monthly P&I
+                let monthlyPI;
+                if (monthlyRate <= 0) monthlyPI = loan / n;
+                else monthlyPI = loan * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1);
+
+                // Monthly extras
+                const monthlyTax = includeTI.checked ? (Number(taxAmount.value || 0) / 12) : 0;
+                const monthlyIns = includeTI.checked ? (Number(insurance.value || 0) / 12) : 0;
+                const monthlyHOA = Number(hoa.value || 0);
+                const pmiPct = Number(pmiPercent.value || 0);
+                const monthlyPMI = (includePMI.checked ? (loan * (pmiPct / 100) / 12) : 0);
+
+                const monthlyTotal = monthlyPI + monthlyTax + monthlyIns + monthlyPMI + monthlyHOA;
+
+                // Annual totals
+                const annualPI = monthlyPI * 12;
+                const annualTax = monthlyTax * 12;
+                const annualIns = monthlyIns * 12;
+                const annualPMI = monthlyPMI * 12;
+                const annualHOA = monthlyHOA * 12;
+                const annualTotal = monthlyTotal * 12;
+
+                // Build amortization (full schedule)
+                let balance = loan;
+                const amort = [];
+                for (let i = 1; i <= n; i++){
+                    const interest = monthlyRate > 0 ? balance * monthlyRate : 0;
+                    let principal = monthlyPI - interest;
+                    // For final payment, adjust to clear balance (avoid rounding leftover)
+                    if (i === n) principal = balance;
+                    balance = Math.max(0, balance - principal);
+                    const paymentTotal = monthlyPI + monthlyTax + monthlyIns + monthlyPMI + monthlyHOA;
+                    amort.push({
+                        i, payment: paymentTotal, principalPaid: principal, interest, balance
+                    });
+                }
+
+                return { 
+                    loan, 
+                    monthlyPI, monthlyTax, monthlyIns, monthlyPMI, monthlyHOA, monthlyTotal,
+                    annualPI, annualTax, annualIns, annualPMI, annualHOA, annualTotal,
+                    amort, n, monthlyRate 
+                };
+            }
+
+            // Render outputs: monthly total, breakdown, donut, amort table 1-10, schedule chart
+            function renderAll(){
+                const out = computeAll();
+
+                monthlyText.textContent = fmt(out.monthlyTotal, 2);
+
+                // Update breakdown list based on current view
+                updateBreakdownList(out);
+
+                renderDonut(out);
+                renderAmortTable(out);
+                renderSchedule(out);
+            }
+
+            // Update breakdown list based on monthly/annual view
+            function updateBreakdownList(out) {
+                if (currentView === 'monthly') {
+                    breakdownList.innerHTML = `
+                        <div style="display:flex;justify-content:space-between"><div>Principal & Interest</div><div>${fmt(out.monthlyPI,2)}</div></div>
+                        <div style="display:flex;justify-content:space-between"><div>Property tax</div><div>${fmt(out.monthlyTax,2)}</div></div>
+                        <div style="display:flex;justify-content:space-between"><div>Insurance</div><div>${fmt(out.monthlyIns,2)}</div></div>
+                        <div style="display:flex;justify-content:space-between"><div>PMI</div><div>${fmt(out.monthlyPMI,2)}</div></div>
+                        <div style="display:flex;justify-content:space-between;font-weight:700"><div>Total (monthly)</div><div>${fmt(out.monthlyTotal,2)}</div></div>
+                    `;
+                } else {
+                    breakdownList.innerHTML = `
+                        <div style="display:flex;justify-content:space-between"><div>Principal & Interest</div><div>${fmt(out.annualPI,2)}</div></div>
+                        <div style="display:flex;justify-content:space-between"><div>Property tax</div><div>${fmt(out.annualTax,2)}</div></div>
+                        <div style="display:flex;justify-content:space-between"><div>Insurance</div><div>${fmt(out.annualIns,2)}</div></div>
+                        <div style="display:flex;justify-content:space-between"><div>PMI</div><div>${fmt(out.annualPMI,2)}</div></div>
+                        <div style="display:flex;justify-content:space-between;font-weight:700"><div>Total (annual)</div><div>${fmt(out.annualTotal,2)}</div></div>
+                    `;
+                }
+            }
+
+            // Donut chart, single center text plugin
+            const centerPlugin = {
+                id: 'centerPlugin',
+                beforeDraw(chart){
+                    const meta = chart._metasets && chart._metasets[0];
+                    const {ctx, chartArea:{left, top, width, height}} = chart;
+                    const opt = chart.options.centerText || {};
+                    ctx.save();
+                    ctx.font = '700 20px Arial';
+                    ctx.fillStyle = '#3b82f6';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const text = opt.centerValue || '';
+                    const sub = opt.subText || '';
+                    ctx.fillText(text, left + width/2, top + height/2 - 8);
+                    ctx.font = '400 13px Arial';
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText(sub, left + width/2, top + height/2 + 18);
+                    ctx.restore();
+                }
+            };
+
+            function renderDonut(out){
+                if (donutChart) donutChart.destroy();
+                
+                // Use monthly or annual data based on current view
+                const dataValues = currentView === 'monthly' 
+                    ? [out.monthlyPI, out.monthlyTax, out.monthlyIns, out.monthlyPMI, out.monthlyHOA]
+                    : [out.annualPI, out.annualTax, out.annualIns, out.annualPMI, out.annualHOA];
+                
+                const totalValue = currentView === 'monthly' ? out.monthlyTotal : out.annualTotal;
+                const subText = currentView === 'monthly' ? '/month' : '/year';
+
+                const data = {
+                    labels: ['P&I', 'Property tax', 'Insurance', 'PMI', 'HOA'],
+                    datasets: [{
+                        data: dataValues,
+                        backgroundColor: ['#3b82f6','#f59e0b','#facc15','#fb7185','#94a3b8'],
+                        borderWidth: 0
+                    }]
+                };
+                donutChart = new Chart(donutCtx, {
+                    type: 'doughnut',
+                    data,
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '70%',
+                        plugins: {
+                            legend: { 
+                                position: 'bottom',
+                                labels: {
+                                    color: '#cbd5e1',
+                                    font: {
+                                        family: 'Arial',
+                                        size: 12
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#1e293b',
+                                titleColor: '#f8fafc',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#3b82f6',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: ctx => `${ctx.label}: ${fmt(ctx.raw,2)}`
+                                }
+                            },
+                            centerText: { }
+                        }
+                    },
+                    plugins: [centerPlugin]
+                });
+                donutChart.options.centerText = { centerValue: fmt(totalValue,2), subText: subText };
+                donutChart.update();
+            }
+
+            // Amortization (display first 10 rows)
+            function renderAmortTable(out){
+                amortTableBody.innerHTML = '';
+                const rowsToShow = Math.min(10, out.amort.length);
+                for (let i = 0; i < rowsToShow; i++){
+                    const r = out.amort[i];
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td style="text-align:center">${r.i}</td>
+                                    <td>${fmt(r.payment,2)}</td>
+                                    <td>${fmt(r.principalPaid,2)}</td>
+                                    <td>${fmt(r.interest,2)}</td>
+                                    <td>${fmt(r.balance,2)}</td>`;
+                    amortTableBody.appendChild(tr);
+                }
+                amortCard.style.display = out.amort.length ? 'block' : 'none';
+            }
+
+            // Export full amortization CSV
+            exportBtn.addEventListener('click', ()=>{
+                const out = computeAll();
+                if (!out.amort.length) return alert('Calculate first.');
+                const rows = [['Payment #','Payment','Principal','Interest','Balance']];
+                out.amort.forEach(r => rows.push([r.i, r.payment.toFixed(2), r.principalPaid.toFixed(2), r.interest.toFixed(2), r.balance.toFixed(2)]));
+                const csv = rows.map(r => r.map(cell => `"${String(cell).replace(/"/g,'""')}"`).join(',')).join('\n');
+                const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = 'amortization.csv'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+            });
+
+            // Advanced schedule: stacked bars (principal + interest) + balance line
+            function renderSchedule(out){
+                if (scheduleChart) scheduleChart.destroy();
+                // Build arrays
+                const months = [], principal = [], interest = [], balanceArr = [];
+                let bal = out.loan;
+                const r = out.monthlyRate;
+                
+                // Aggregate data annually if annual view is selected
+                const aggregation = currentView === 'annual' ? 12 : 1;
+                
+                for (let i = 1; i <= out.n; i++){
+                    const intp = r > 0 ? bal * r : 0;
+                    let prin = out.monthlyPI - intp;
+                    if (i === out.n) prin = bal; // final principal to clear balance
+                    bal = Math.max(0, bal - prin);
+                    
+                    // Aggregate data for annual view
+                    if (i % aggregation === 0 || i === out.n) {
+                        months.push(currentView === 'annual' ? Math.ceil(i / 12) : i);
+                        principal.push(prin * aggregation);
+                        interest.push(intp * aggregation);
+                        balanceArr.push(Math.max(bal,0));
+                    }
+                }
+
+                scheduleChart = new Chart(scheduleCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            { type: 'bar', label: 'Principal', data: principal, backgroundColor: 'rgba(59, 130, 246, 0.8)', stack: 'a', borderRadius: 4 },
+                            { type: 'bar', label: 'Interest', data: interest, backgroundColor: 'rgba(245, 158, 11, 0.85)', stack: 'a', borderRadius: 4 },
+                            { type: 'line', label: 'Remaining Balance', data: balanceArr, borderColor: '#10B981', borderWidth: 2, fill: false, tension: 0.25, pointRadius: 0, yAxisID: 'y' }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                backgroundColor: '#1e293b',
+                                titleColor: '#f8fafc',
+                                bodyColor: '#cbd5e1',
+                                borderColor: '#3b82f6',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: ctx => {
+                                        const label = ctx.dataset.label || '';
+                                        const raw = ctx.raw || 0;
+                                        return `${label}: ${fmt(raw,2)}`;
+                                    }
+                                }
+                            },
+                            legend: { 
+                                position: 'bottom',
+                                labels: {
+                                    color: '#cbd5e1',
+                                    font: {
+                                        family: 'Arial',
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { 
+                                stacked: true, 
+                                title: { 
+                                    display: true, 
+                                    text: currentView === 'annual' ? 'Year' : 'Month',
+                                    color: '#cbd5e1',
+                                    font: { 
+                                        family: 'Arial',
+                                        weight: 600 
+                                    } 
+                                },
+                                grid: {
+                                    color: 'rgba(100, 116, 139, 0.2)'
+                                },
+                                ticks: {
+                                    color: '#94a3b8'
+                                }
+                            },
+                            y: { 
+                                stacked: true, 
+                                title: { 
+                                    display: true, 
+                                    text: 'Amount ($)', 
+                                    color: '#cbd5e1',
+                                    font: { 
+                                        family: 'Arial',
+                                        weight: 600 
+                                    } 
+                                }, 
+                                ticks: { 
+                                    callback: v => '$' + Number(v).toLocaleString(),
+                                    color: '#94a3b8'
+                                },
+                                grid: {
+                                    color: 'rgba(100, 116, 139, 0.2)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Fixed View toggle functionality
+            viewToggle.addEventListener('change', () => {
+                currentView = viewToggle.checked ? 'annual' : 'monthly';
+                
+                // Update label colors
+                const labels = document.querySelectorAll('.mc-view-label');
+                if (viewToggle.checked) {
+                    labels[0].classList.remove('active');
+                    labels[1].classList.add('active');
+                } else {
+                    labels[0].classList.add('active');
+                    labels[1].classList.remove('active');
+                }
+                
+                renderAll();
+            });
+
+            // Tabs
+            document.querySelectorAll('.mc-tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mc-tab').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const tab = btn.dataset.tab;
+                    $('mc-donut-wrap').style.display = tab === 'break' ? 'flex' : 'none';
+                    $('mc-schedule-wrap').style.display = tab === 'schedule' ? 'flex' : 'none';
+                    // redraw charts to fit
+                    if (donutChart) donutChart.resize();
+                    if (scheduleChart) scheduleChart.resize();
+                });
+            });
+
+            // Wire inputs to recompute on change
+            [
+                price, priceRange, down, downPercent, downRange,
+                term, rate,
+                taxAmount, taxRange,
+                insurance, insuranceRange,
+                pmiPercent, pmiRange,
+                hoa, hoaRange,
+                includePMI, includeTI
+            ].forEach(el => {
+                if (!el) return;
+                el.addEventListener('input', () => {
+                    // update fills where ranges present
+                    if (el.tagName === 'INPUT' && el.type === 'range') updateRangeFill(el);
+                    renderAll();
+                });
+            });
+
+            // Calculate & reset
+            calcBtn.addEventListener('click', e => { e.preventDefault(); renderAll(); });
+            resetBtn.addEventListener('click', ()=>{
+                price.value = 350000; priceRange.value = 350000;
+                downPercent.value = 20; downRange.value = 20; down.value = Math.round(350000 * 0.2);
+                term.value = 30; rate.value = 4.50;
+                taxAmount.value = 4200; taxRange.value = 4200;
+                insurance.value = 1200; insuranceRange.value = 1200;
+                pmiPercent.value = 0.50; pmiRange.value = 0.50;
+                hoa.value = 0; hoaRange.value = 0;
+                includePMI.checked = true; includeTI.checked = true;
+                viewToggle.checked = false;
+                currentView = 'monthly';
+                // Update label colors
+                const labels = document.querySelectorAll('.mc-view-label');
+                labels[0].classList.add('active');
+                labels[1].classList.remove('active');
+                [priceRange, downRange, taxRange, insuranceRange, pmiRange, hoaRange].forEach(updateRangeFill);
+                renderAll();
+            });
+
+            // Resize charts on window resize
+            window.addEventListener('resize', ()=>{
+                if (donutChart) donutChart.resize();
+                if (scheduleChart) scheduleChart.resize();
+            });
+
+            // initial render
+            setTimeout(()=>{ 
+                setDownFromPercent = (pct) => {
+                    const p = Number(price.value || 0);
+                    const percent = Math.max(0, Math.min(100, Number(pct || 0)));
+                    downPercent.value = Number(percent.toFixed(2));
+                    down.value = Math.round(p * percent / 100);
+                    downRange.value = percent;
+                    updateRangeFill(downRange);
+                };
+                [priceRange, downRange, taxRange, insuranceRange, pmiRange, hoaRange].forEach(updateRangeFill);
+                renderAll();
+            }, 0);
+
+        })();
+    </script>
+</body>
+</html>
